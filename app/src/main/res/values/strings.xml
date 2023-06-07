@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">wifiCheck</string>
+    <string name="check_connection">Check connection every 1 minute</string>
+    <string name="my_ip_address">My ip address:</string>
+    <string name="show_logs">Show logs</string>
+    <string name="save">Save</string>
+    <string name="title_status">Wi-Fi/Internet check status</string>
+    <string name="google_url">Google</string>
+    <string name="ping_edit_ip">ping edit ip</string>
+    <string name="title_domain_address">New ip/domain address</string>
+    <string name="vibration">Vibration</string>
+    <string name="sound">Sound</string>
+    <string name="notice">Notice</string>
 </resources>

@@ -7,6 +7,15 @@
     android:layout_height="match_parent"
     tools:context=".activity.MainActivity">
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/logRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/button_settings"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
     <Button
         android:id="@+id/button_settings"
         android:layout_width="wrap_content"
