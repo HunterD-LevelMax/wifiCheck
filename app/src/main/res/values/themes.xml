@@ -12,7 +12,7 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" >?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
-        <item name="fontFamily">@font/baloo_bhaina</item>
+
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/black</item>
     </style>
