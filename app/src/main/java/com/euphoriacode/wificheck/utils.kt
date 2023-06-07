@@ -9,7 +9,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import java.net.NetworkInterface
 
-val urlGoogle = "https://www.google.ru"
+const val urlGoogle = "https://www.google.ru"
+const val host = "ya.ru"
 
 fun AppCompatActivity.replaceActivity(activity: AppCompatActivity) {
     val intent = Intent(this, activity::class.java)

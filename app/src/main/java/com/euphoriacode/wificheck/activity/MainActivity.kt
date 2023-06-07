@@ -5,13 +5,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.euphoriacode.wificheck.adapter.PingAdapter
 import com.euphoriacode.wificheck.databinding.ActivityMainBinding
+import com.euphoriacode.wificheck.host
 import com.euphoriacode.wificheck.ping.PingTask
 import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var pingTask: PingTask
-    private var job: Job? = null
+    private var jobPing: Job? = null
 
     private val logList: MutableList<String> = mutableListOf()
     private lateinit var pingAdapter: PingAdapter
@@ -21,13 +22,24 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val host = "ya.ru"
-        // Инициализация RecyclerView и адаптера
+        initAdapter()
+        getPingLog()
 
-        pingAdapter = PingAdapter(logList)
-        binding.logRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.logRecyclerView.adapter = pingAdapter
+        val count = 10
+        val delayPing = 1000L // Задержка в 2 секунды
 
+        binding.buttonSettings.setOnClickListener {
+            jobPing?.cancel() // Отменяем предыдущую работу корутины (если есть)
+            jobPing = CoroutineScope(Dispatchers.Main).launch {
+                repeat(count) {// код-во запросов
+                    pingTask.performPing()
+                    delay(delayPing)// Задержка в 2 секунды
+                }
+            }
+        }
+    }
+
+    private fun getPingLog() {
         pingTask = PingTask(host, object : PingTask.PingListener {
             override fun onResult(success: Boolean, time: Long) {
                 val logMessage = if (success) {
@@ -35,20 +47,17 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     "error ping"
                 }
-                addLogMessage(logMessage) // Добавляем лог в список
+                addLogMessage(logMessage)
             }
         })
-
-        binding.buttonSettings.setOnClickListener {
-            job?.cancel() // Отменяем предыдущую работу корутины (если есть)
-            job = CoroutineScope(Dispatchers.Main).launch {
-                repeat(10) {
-                    pingTask.performPing()
-                    delay(2000L) // Задержка в 1 секунду
-                }
-            }
-        }
     }
+
+    private fun initAdapter() {
+        pingAdapter = PingAdapter(logList)
+        binding.logRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.logRecyclerView.adapter = pingAdapter
+    }
+
 
     private fun addLogMessage(message: String) {
         runOnUiThread {
@@ -57,9 +66,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
-        job?.cancel() // Отменяем работу корутины при уничтожении активности
+        jobPing?.cancel() // Отменяем работу корутины при уничтожении активности
     }
 }
