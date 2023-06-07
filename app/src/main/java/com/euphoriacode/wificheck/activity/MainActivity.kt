@@ -1,8 +1,9 @@
-package com.euphoriacode.wificheck
+package com.euphoriacode.wificheck.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.euphoriacode.wificheck.databinding.ActivityMainBinding
+import com.euphoriacode.wificheck.replaceActivity
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -16,7 +17,6 @@ class MainActivity : AppCompatActivity() {
         binding.buttonSettings.setOnClickListener {
             replaceActivity(SettingsActivity())
         }
-
 
     }
 }

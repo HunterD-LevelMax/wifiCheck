@@ -1,4 +1,4 @@
-package com.euphoriacode.wificheck
+package com.euphoriacode.wificheck.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

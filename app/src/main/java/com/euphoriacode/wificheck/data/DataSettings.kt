@@ -1,6 +1,6 @@
-package com.euphoriacode.wificheck
+package com.euphoriacode.wificheck.data
 
-data class Settings(
+data class DataSettings(
     var ip_address: String,
     var sound: Boolean,
     var vibration: Boolean,
