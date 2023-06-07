@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     private fun getPingLog() {
         pingTask = PingTask(host, object : PingTask.PingListener {
             override fun onResult(success: Boolean, time: Long) {
