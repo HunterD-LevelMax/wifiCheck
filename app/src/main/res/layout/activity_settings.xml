@@ -127,7 +127,7 @@
                 android:layout_marginTop="16dp"
                 android:orientation="horizontal"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/seekBar_delay_ping">
+                app:layout_constraintTop_toBottomOf="@+id/checkBox_ping_per_sec">
 
                 <TextView
                     android:id="@+id/title_my_ip"
@@ -140,8 +140,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="10.1.1.1"
-                    />
+                    android:text="10.1.1.1" />
             </LinearLayout>
 
             <Button
@@ -168,6 +167,16 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/button_show_logs" />
+
+            <CheckBox
+                android:id="@+id/checkBox_ping_per_sec"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:text="Check ping per second"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/seekBar_delay_ping" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

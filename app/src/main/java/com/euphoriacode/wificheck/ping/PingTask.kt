@@ -27,6 +27,7 @@ class PingTask(private val host: String, private val pingListener: PingListener)
                 socket.close()
 
                 pingListener.onResult(true, elapsedTime)
+
             } catch (e: IOException) {
                 e.printStackTrace()
                 pingListener.onResult(false, 0)

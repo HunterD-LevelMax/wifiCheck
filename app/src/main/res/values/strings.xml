@@ -11,4 +11,5 @@
     <string name="vibration">Vibration</string>
     <string name="sound">Sound</string>
     <string name="notice">Notice</string>
+    <string name="defaultIp">ya.ru</string>
 </resources>

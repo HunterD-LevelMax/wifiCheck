@@ -5,5 +5,6 @@ data class DataSettings(
     var sound: Boolean,
     var vibration: Boolean,
     var notice: Boolean,
-    var delayPing: String
+    var delayPing: Long,
+    var checkPingPerSec: Boolean
 )

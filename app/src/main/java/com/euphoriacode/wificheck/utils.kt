@@ -7,10 +7,16 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import java.io.File
 import java.net.NetworkInterface
+import java.nio.charset.Charset
+import java.nio.file.Files
+import java.nio.file.Paths
 
 const val urlGoogle = "https://www.google.ru"
-const val host = "ya.ru"
+const val fileName = "Settings.ini"
+
+const val host = "192.168.1.1"
 
 fun AppCompatActivity.replaceActivity(activity: AppCompatActivity) {
     val intent = Intent(this, activity::class.java)
@@ -43,4 +49,14 @@ fun getIpAddress(): String? {
         }
     }
     return "connect to Wi-Fi"
+}
+
+fun checkFile(fileName: String, path: String): Boolean {
+    val file =
+        File("$path/$fileName")
+    return file.exists() && !file.isDirectory
+}
+
+fun readFile(path: String, encoding: Charset): String {
+    return Files.readAllLines(Paths.get(path), encoding)[0]
 }

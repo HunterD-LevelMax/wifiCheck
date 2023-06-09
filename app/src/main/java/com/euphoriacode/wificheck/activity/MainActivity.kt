@@ -1,18 +1,23 @@
 package com.euphoriacode.wificheck.activity
 
 import android.os.Bundle
+import android.os.Environment
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.euphoriacode.wificheck.*
 import com.euphoriacode.wificheck.adapter.PingAdapter
+import com.euphoriacode.wificheck.data.DataSettings
 import com.euphoriacode.wificheck.databinding.ActivityMainBinding
-import com.euphoriacode.wificheck.host
 import com.euphoriacode.wificheck.ping.PingTask
+import com.google.gson.Gson
 import kotlinx.coroutines.*
+import java.nio.charset.StandardCharsets
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var pingTask: PingTask
     private var jobPing: Job? = null
+    private lateinit var dataSettings: DataSettings
 
     private val logList: MutableList<String> = mutableListOf()
     private lateinit var pingAdapter: PingAdapter
@@ -22,31 +27,69 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        loadData()
         initAdapter()
         getPingLog()
 
-        val count = 10
-        val delayPing = 1000L // Задержка в 2 секунды
+        val countPing = 10
+        val delayPing = 1000L // Задержка в 1 секунды
 
-        binding.buttonSettings.setOnClickListener {
+        binding.buttonPing.setOnClickListener {
             jobPing?.cancel() // Отменяем предыдущую работу корутины (если есть)
+
             jobPing = CoroutineScope(Dispatchers.Main).launch {
-                repeat(count) {// код-во запросов
-                    pingTask.performPing()
-                    delay(delayPing)// Задержка в 2 секунды
+                if (dataSettings.checkPingPerSec) {
+                    repeat(countPing) {
+                        pingTask.performPing()
+                        delay(delayPing)
+                    }
+                } else {
+                  runOnUiThread(){
+                      showToast("раз в минуту")
+                  }
+                    repeat(countPing) {
+                        pingTask.performPing()
+                        delay(dataSettings.delayPing)
+                    }
                 }
             }
         }
+
+        binding.buttonStopPing.setOnClickListener {
+            replaceActivity(SettingsActivity())
+        }
     }
 
+    private fun loadData(): DataSettings {
+        val path = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString()
+        val jsonString: String
+
+        if (checkFile(fileName, path)) {
+            jsonString = readFile("$path/$fileName", StandardCharsets.UTF_8)
+            dataSettings = Gson().fromJson(
+                jsonString,
+                DataSettings::class.java
+            )
+        } else {
+            dataSettings = DataSettings(
+                ipAddress = getString(R.string.defaultIp),
+                sound = true,
+                vibration = true,
+                notice = true,
+                delayPing = 1000L,
+                checkPingPerSec = false
+            )
+        }
+        return dataSettings
+    }
 
     private fun getPingLog() {
-        pingTask = PingTask(host, object : PingTask.PingListener {
+        pingTask = PingTask(dataSettings.ipAddress, object : PingTask.PingListener {
             override fun onResult(success: Boolean, time: Long) {
                 val logMessage = if (success) {
-                    "reply from $host time=$time ms"
+                    "PING from ${dataSettings.ipAddress} time=$time ms"
                 } else {
-                    "error ping"
+                    "PING ${dataSettings.ipAddress} error"
                 }
                 addLogMessage(logMessage)
             }
@@ -59,7 +102,6 @@ class MainActivity : AppCompatActivity() {
         binding.logRecyclerView.adapter = pingAdapter
     }
 
-
     private fun addLogMessage(message: String) {
         runOnUiThread {
             logList.add(message)
@@ -70,5 +112,10 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         jobPing?.cancel() // Отменяем работу корутины при уничтожении активности
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadData()
     }
 }
