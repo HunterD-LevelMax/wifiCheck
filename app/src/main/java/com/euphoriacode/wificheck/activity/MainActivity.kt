@@ -29,34 +29,42 @@ class MainActivity : AppCompatActivity() {
 
         loadData()
         initAdapter()
-        getPingLog()
+        initPing()
 
-        val countPing = 10
-        val delayPing = 1000L // Задержка в 1 секунды
 
         binding.buttonPing.setOnClickListener {
-            jobPing?.cancel() // Отменяем предыдущую работу корутины (если есть)
-
-            jobPing = CoroutineScope(Dispatchers.Main).launch {
-                if (dataSettings.checkPingPerSec) {
-                    repeat(countPing) {
-                        pingTask.performPing()
-                        delay(delayPing)
-                    }
-                } else {
-                  runOnUiThread(){
-                      showToast("раз в минуту")
-                  }
-                    repeat(countPing) {
-                        pingTask.performPing()
-                        delay(dataSettings.delayPing)
-                    }
-                }
-            }
+            ping()
         }
 
         binding.buttonStopPing.setOnClickListener {
             replaceActivity(SettingsActivity())
+        }
+    }
+
+    private fun ping() {
+        val countPing = 10
+        val delayPing = 1000L // Задержка в 1 секунды
+
+        jobPing?.cancel() // Отменяем предыдущую работу корутины (если есть)
+
+        jobPing = CoroutineScope(Dispatchers.Main).launch {
+            when (dataSettings.checkPingPerSec) {
+                true -> {
+                    repeat(countPing) {
+                        pingTask.performPing()
+                        delay(delayPing)
+                    }
+                }
+                false -> {
+                    repeat(countPing) {
+                        pingTask.performPing()
+                        delay(dataSettings.delayPing)
+                    }
+                    runOnUiThread() {
+                        showToast("Ping every ${dataSettings.delayPing / 60000L} minute")
+                    }
+                }
+            }
         }
     }
 
@@ -83,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         return dataSettings
     }
 
-    private fun getPingLog() {
+    private fun initPing() {
         pingTask = PingTask(dataSettings.ipAddress, object : PingTask.PingListener {
             override fun onResult(success: Boolean, time: Long) {
                 val logMessage = if (success) {
