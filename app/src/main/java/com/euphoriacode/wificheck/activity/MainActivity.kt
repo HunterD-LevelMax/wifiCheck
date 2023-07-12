@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
             ping()
         }
 
-        binding.buttonStopPing.setOnClickListener {
+        binding.buttonSettings.setOnClickListener {
             replaceActivity(SettingsActivity())
         }
     }
