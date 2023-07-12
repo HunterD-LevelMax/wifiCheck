@@ -69,7 +69,8 @@ class SettingsActivity : AppCompatActivity() {
                 vibration = true,
                 notice = true,
                 delayPing = 1000L,
-                false
+                false,
+                googleUrl = false
             )
         }
         return dataSettings
@@ -110,7 +111,8 @@ class SettingsActivity : AppCompatActivity() {
                             vibration = switchVibration.isChecked,
                             notice = switchPushNotice.isChecked,
                             delayPing = seekBarDelayPing.progress.toLong() * 60000L,
-                            checkPingPerSec =  checkBoxPingPerSec.isChecked
+                            checkPingPerSec =  checkBoxPingPerSec.isChecked,
+                            googleUrl = checkBoxGoogleIp.isChecked
                         )
                         saveFileData(dataSettings, path)
                         showToast("Save success")

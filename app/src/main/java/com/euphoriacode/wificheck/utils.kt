@@ -13,7 +13,7 @@ import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 
-const val urlGoogle = "https://www.google.ru"
+const val urlGoogle = "google.ru"
 const val fileName = "Settings.ini"
 
 const val host = "192.168.1.1"

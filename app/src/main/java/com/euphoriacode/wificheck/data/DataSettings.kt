@@ -6,5 +6,6 @@ data class DataSettings(
     var vibration: Boolean,
     var notice: Boolean,
     var delayPing: Long,
-    var checkPingPerSec: Boolean
+    var checkPingPerSec: Boolean,
+    var googleUrl: Boolean
 )

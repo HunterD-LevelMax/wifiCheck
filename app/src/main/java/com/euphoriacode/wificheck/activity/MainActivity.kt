@@ -29,11 +29,17 @@ class MainActivity : AppCompatActivity() {
 
         loadData()
         initAdapter()
-        initPing()
-
 
         binding.buttonPing.setOnClickListener {
-            ping()
+
+            when (dataSettings.googleUrl){
+                true -> {
+                    ping(urlGoogle)
+                }
+                else ->{
+                    ping(dataSettings.ipAddress)
+                }
+            }
         }
 
         binding.buttonSettings.setOnClickListener {
@@ -41,9 +47,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun ping() {
+    private fun ping(ip: String) {
         val countPing = 10
         val delayPing = 1000L // Задержка в 1 секунды
+
+        initPing(ip)
 
         jobPing?.cancel() // Отменяем предыдущую работу корутины (если есть)
 
@@ -85,19 +93,20 @@ class MainActivity : AppCompatActivity() {
                 vibration = true,
                 notice = true,
                 delayPing = 1000L,
-                checkPingPerSec = false
+                checkPingPerSec = false,
+                googleUrl = false
             )
         }
         return dataSettings
     }
 
-    private fun initPing() {
-        pingTask = PingTask(dataSettings.ipAddress, object : PingTask.PingListener {
+    private fun initPing(ip: String) {
+        pingTask = PingTask(ip, object : PingTask.PingListener {
             override fun onResult(success: Boolean, time: Long) {
                 val logMessage = if (success) {
-                    "PING from ${dataSettings.ipAddress} time=$time ms"
+                    "PING from $ip time=$time ms"
                 } else {
-                    "PING ${dataSettings.ipAddress} error"
+                    "PING $ip error"
                 }
                 addLogMessage(logMessage)
             }
