@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.buttonStopPing.setOnClickListener {
+        binding.buttonSettings.setOnClickListener {
             replaceActivity(SettingsActivity())
         }
     }
