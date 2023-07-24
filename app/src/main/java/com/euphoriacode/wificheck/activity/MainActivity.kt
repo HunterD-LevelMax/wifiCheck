@@ -21,6 +21,8 @@ class MainActivity : AppCompatActivity() {
     private val logList: MutableList<String> = mutableListOf()
     private lateinit var pingAdapter: PingAdapter
 
+    private var isPingStopped = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -56,20 +58,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun stopPing() {
-        binding.buttonPing.text = getString(R.string.ping)
-        jobPing?.cancel()
-    }
-
     private fun startPing(ip: String) {
-        val countPing = 2
         val delayPing = if (dataSettings.checkPingPerSec) 1000L else dataSettings.delayPing
 
         pingMessage(ip) // инициализация PingTask
         jobPing?.cancel() // Отменяем предыдущую работу корутины (если есть)
 
         jobPing = CoroutineScope(Dispatchers.Main).launch {
-            repeat(countPing) {
+
+            while (!isPingStopped) {
                 pingMessage(ip).performPing()
                 delay(delayPing)
             }
@@ -79,9 +76,13 @@ class MainActivity : AppCompatActivity() {
                     showToast("Ping every ${dataSettings.delayPing / 60000L} minute")
                 }
             }
-
-            stopPing()
         }
+    }
+
+    private fun stopPing() {
+        binding.buttonPing.text = getString(R.string.ping)
+        isPingStopped = false
+        jobPing?.cancel()
     }
 
     fun getIpByHostName(ip: String): InetAddress {
@@ -115,6 +116,7 @@ class MainActivity : AppCompatActivity() {
         runOnUiThread {
             logList.add(message)
             pingAdapter.notifyItemInserted(logList.size - 1)
+            binding.logRecyclerView.scrollToPosition(logList.size - 1)
         }
     }
 
@@ -125,7 +127,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        showToast("Load settings")
         dataSettings = loadData(this)
     }
 }

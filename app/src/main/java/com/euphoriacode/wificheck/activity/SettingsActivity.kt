@@ -1,9 +1,11 @@
 package com.euphoriacode.wificheck.activity
 
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.widget.SeekBar
+import androidx.annotation.RequiresApi
 import com.euphoriacode.wificheck.*
 import com.euphoriacode.wificheck.data.DataSettings
 import com.euphoriacode.wificheck.databinding.ActivitySettingsBinding
@@ -13,6 +15,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var seekBar: SeekBar
     private lateinit var dataSettings: DataSettings
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
@@ -21,6 +24,7 @@ class SettingsActivity : AppCompatActivity() {
         setSettings()
         seekBar()
         saveButton()
+
         binding.myIpAddress.text = getIpByHostName()
     }
 

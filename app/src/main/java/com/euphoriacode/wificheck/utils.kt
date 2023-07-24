@@ -4,9 +4,14 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
+import android.net.LinkProperties
+import android.net.Network
 import android.net.NetworkCapabilities
+import android.net.wifi.WifiManager
+import android.os.Build
 import android.os.Environment
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.euphoriacode.wificheck.data.DataSettings
 import com.google.gson.Gson
@@ -14,6 +19,8 @@ import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.Writer
+import java.net.Inet4Address
+import java.net.InetAddress
 import java.net.NetworkInterface
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
@@ -87,7 +94,7 @@ import java.nio.file.Paths
                 }
             }
         }
-        return "connect to Wi-Fi"
+        return "try connect to Wi-Fi"
     }
 
     fun checkFile(fileName: String, path: String): Boolean {
