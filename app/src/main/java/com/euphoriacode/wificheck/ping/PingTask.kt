@@ -1,5 +1,6 @@
 package com.euphoriacode.wificheck.ping
 
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -13,7 +14,9 @@ class PingTask(private val host: String, private val pingListener: PingListener)
         fun onResult(success: Boolean, time: Long)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun performPing() {
+
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 val socket = Socket()
@@ -25,7 +28,6 @@ class PingTask(private val host: String, private val pingListener: PingListener)
                 val elapsedTime = endTime - startTime
 
                 socket.close()
-
                 pingListener.onResult(true, elapsedTime)
 
             } catch (e: IOException) {

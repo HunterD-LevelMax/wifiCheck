@@ -7,13 +7,6 @@ import android.widget.SeekBar
 import com.euphoriacode.wificheck.*
 import com.euphoriacode.wificheck.data.DataSettings
 import com.euphoriacode.wificheck.databinding.ActivitySettingsBinding
-import com.google.gson.Gson
-import java.io.BufferedWriter
-import java.io.File
-import java.io.FileWriter
-import java.io.Writer
-import java.nio.charset.StandardCharsets
-
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
@@ -25,55 +18,31 @@ class SettingsActivity : AppCompatActivity() {
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setSettings(loadData())
+        setSettings()
         seekBar()
         saveButton()
-        binding.myIpAddress.text = getIpAddress()
+        binding.myIpAddress.text = getIpByHostName()
     }
 
-    private fun saveFileData(dataSettings: DataSettings, path: String) {
-        val json = Gson().toJson(dataSettings)
-        val file = File(path, fileName)
-        val output: Writer
-        output = BufferedWriter(FileWriter(file))
-        output.write(json.toString())
-        output.close()
+    override fun onResume() {
+        super.onResume()
+        setSettings()
     }
 
-    private fun setSettings(dataSettings: DataSettings) {
+    private fun setSettings() {
+
+        dataSettings = loadData(this)
+
         binding.apply {
+            checkBoxGoogleIp.isChecked = dataSettings.setGoogleUrl
             editTextIpAddress.setText(dataSettings.ipAddress)
             switchSound.isChecked = dataSettings.sound
             switchVibration.isChecked = dataSettings.vibration
             switchPushNotice.isChecked = dataSettings.notice
-            seekBarDelayPing.progress = (dataSettings.delayPing/60000L).toInt()
+            seekBarDelayPing.progress = (dataSettings.delayPing / 60000L).toInt()
             checkBoxPingPerSec.isChecked = dataSettings.checkPingPerSec
-            updateDelayPingTitle((dataSettings.delayPing/60000L).toInt())
+            updateDelayPingTitle((dataSettings.delayPing / 60000L).toInt())
         }
-    }
-
-    private fun loadData(): DataSettings {
-        val path = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString()
-        val jsonString: String
-
-        if (checkFile(fileName, path)) {
-            jsonString = readFile("$path/$fileName", StandardCharsets.UTF_8)
-            dataSettings = Gson().fromJson(
-                jsonString,
-                DataSettings::class.java
-            )
-        } else {
-            dataSettings = DataSettings(
-                ipAddress = getString(R.string.defaultIp),
-                sound = true,
-                vibration = true,
-                notice = true,
-                delayPing = 1000L,
-                false,
-                googleUrl = false
-            )
-        }
-        return dataSettings
     }
 
     private fun seekBar() {
@@ -104,23 +73,22 @@ class SettingsActivity : AppCompatActivity() {
         binding.apply {
             buttonSave.setOnClickListener {
                 try {
-                    if (editTextIpAddress.text.isNotEmpty()) {
+                    binding.apply {
                         dataSettings = DataSettings(
+                            setGoogleUrl = checkBoxGoogleIp.isChecked,
                             ipAddress = editTextIpAddress.text.toString(),
                             sound = switchSound.isChecked,
                             vibration = switchVibration.isChecked,
                             notice = switchPushNotice.isChecked,
                             delayPing = seekBarDelayPing.progress.toLong() * 60000L,
-                            checkPingPerSec =  checkBoxPingPerSec.isChecked,
-                            googleUrl = checkBoxGoogleIp.isChecked
+                            checkPingPerSec = checkBoxPingPerSec.isChecked
                         )
-                        saveFileData(dataSettings, path)
-                        showToast("Save success")
-                    } else {
-                        showToast("Enter ip address")
                     }
+                    saveFileData(dataSettings, path)
+                    showToast(getString(R.string.save_success))
                 } catch (e: Exception) {
                     e.printStackTrace()
+                    showToast(getString(R.string.error))
                 }
             }
         }

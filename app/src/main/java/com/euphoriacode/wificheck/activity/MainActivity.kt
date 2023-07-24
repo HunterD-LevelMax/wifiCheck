@@ -1,7 +1,6 @@
 package com.euphoriacode.wificheck.activity
 
 import android.os.Bundle
-import android.os.Environment
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.euphoriacode.wificheck.*
@@ -9,13 +8,13 @@ import com.euphoriacode.wificheck.adapter.PingAdapter
 import com.euphoriacode.wificheck.data.DataSettings
 import com.euphoriacode.wificheck.databinding.ActivityMainBinding
 import com.euphoriacode.wificheck.ping.PingTask
-import com.google.gson.Gson
 import kotlinx.coroutines.*
-import java.nio.charset.StandardCharsets
+import java.net.Inet4Address
+import java.net.InetAddress
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private lateinit var pingTask: PingTask
+
     private var jobPing: Job? = null
     private lateinit var dataSettings: DataSettings
 
@@ -27,90 +26,83 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        loadData()
+        dataSettings = loadData(this)
         initAdapter()
+        initButtons()
 
-        binding.buttonPing.setOnClickListener {
+    }
 
-            when (dataSettings.googleUrl){
-                true -> {
-                    ping(urlGoogle)
-                }
-                else ->{
-                    ping(dataSettings.ipAddress)
+    private fun initButtons() {
+        binding.apply {
+            buttonPing.setOnClickListener {
+                if (buttonPing.text == getString(R.string.ping)) {
+                    ping()
+                    buttonPing.text = getString(R.string.stop)
+                } else {
+                    stopPing()
                 }
             }
-        }
-
-        binding.buttonSettings.setOnClickListener {
-            replaceActivity(SettingsActivity())
+            buttonSettings.setOnClickListener {
+                replaceActivity(SettingsActivity())
+            }
         }
     }
 
-    private fun ping(ip: String) {
-        val countPing = 10
-        val delayPing = 1000L // Задержка в 1 секунды
+    private fun ping() {
+        if (dataSettings.setGoogleUrl) {
+            startPing(urlGoogle)
+        } else {
+            startPing(dataSettings.ipAddress)
+        }
+    }
 
-        initPing(ip)
+    private fun stopPing() {
+        binding.buttonPing.text = getString(R.string.ping)
+        jobPing?.cancel()
+    }
 
+    private fun startPing(ip: String) {
+        val countPing = 2
+        val delayPing = if (dataSettings.checkPingPerSec) 1000L else dataSettings.delayPing
+
+        pingMessage(ip) // инициализация PingTask
         jobPing?.cancel() // Отменяем предыдущую работу корутины (если есть)
 
         jobPing = CoroutineScope(Dispatchers.Main).launch {
-            when (dataSettings.checkPingPerSec) {
-                true -> {
-                    repeat(countPing) {
-                        pingTask.performPing()
-                        delay(delayPing)
-                    }
-                }
-                false -> {
-                    repeat(countPing) {
-                        pingTask.performPing()
-                        delay(dataSettings.delayPing)
-                    }
-                    runOnUiThread() {
-                        showToast("Ping every ${dataSettings.delayPing / 60000L} minute")
-                    }
+            repeat(countPing) {
+                pingMessage(ip).performPing()
+                delay(delayPing)
+            }
+
+            if (!dataSettings.checkPingPerSec) {
+                withContext(Dispatchers.Main) {
+                    showToast("Ping every ${dataSettings.delayPing / 60000L} minute")
                 }
             }
+
+            stopPing()
         }
     }
 
-    private fun loadData(): DataSettings {
-        val path = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString()
-        val jsonString: String
-
-        if (checkFile(fileName, path)) {
-            jsonString = readFile("$path/$fileName", StandardCharsets.UTF_8)
-            dataSettings = Gson().fromJson(
-                jsonString,
-                DataSettings::class.java
-            )
-        } else {
-            dataSettings = DataSettings(
-                ipAddress = getString(R.string.defaultIp),
-                sound = true,
-                vibration = true,
-                notice = true,
-                delayPing = 1000L,
-                checkPingPerSec = false,
-                googleUrl = false
-            )
+    fun getIpByHostName(ip: String): InetAddress {
+        kotlin.run {
+            return Inet4Address.getByName(ip)
         }
-        return dataSettings
     }
 
-    private fun initPing(ip: String) {
-        pingTask = PingTask(ip, object : PingTask.PingListener {
+    private fun pingMessage(ip: String): PingTask {
+        val pingTask = PingTask(ip, object : PingTask.PingListener {
+
             override fun onResult(success: Boolean, time: Long) {
                 val logMessage = if (success) {
-                    "PING from $ip time=$time ms"
+                    "PING from ${getIpByHostName(ip)} time=${time}ms"
                 } else {
                     "PING $ip error"
                 }
                 addLogMessage(logMessage)
             }
         })
+        return pingTask
     }
 
     private fun initAdapter() {
@@ -133,6 +125,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        loadData()
+        showToast("Load settings")
+        dataSettings = loadData(this)
     }
 }
