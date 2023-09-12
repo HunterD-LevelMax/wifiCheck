@@ -67,7 +67,6 @@ class MainActivity : AppCompatActivity() {
         startPing(ipAddress)
     }
 
-
     private fun startPing(ip: String) {
         val delayPing = if (dataSettings.checkPingPerSec) 1000L else dataSettings.delayPing
         isPingStopped = true
@@ -87,19 +86,25 @@ class MainActivity : AppCompatActivity() {
             withContext(Dispatchers.IO){
 
 
+                    while (isPingStopped) {
+                        pingMessage(ip).performPing()
+                        delay(delayPing)
+                    }
 
-                while (isPingStopped) {
-                    pingMessage(ip).performPing()
-                    delay(delayPing)
-                }
+
+
             }
         }
     }
 
-
     private fun pingMessage(ip: String): PingTask {
+        var ipAddress = ""
 
-        val ipAddress = Inet4Address.getByName(ip)
+        ipAddress = try {
+            Inet4Address.getByName(ip).toString()
+        }catch (e:Exception){
+            "error"
+        }
 
         val pingTask = PingTask(ip, object : PingTask.PingListener {
             override fun onResult(success: Boolean, time: Long) {
