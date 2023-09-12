@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         binding.apply {
             buttonPing.setOnClickListener {
                 if (buttonPing.text == getString(R.string.ping)) {
-                    ping()
+                    setIp()
                     buttonPing.text = getString(R.string.stop)
                 } else {
                     stopPing()
@@ -50,13 +50,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun ping() {
-        if (dataSettings.setGoogleUrl) {
-            startPing(urlGoogle)
+    private fun setIp() {
+        val ipAddress = if (binding.enterIp.text.isNotEmpty()) {
+            binding.enterIp.text.toString()
+        } else if (dataSettings.setGoogleUrl) {
+            urlGoogle
         } else {
-            startPing(dataSettings.ipAddress)
+            dataSettings.ipAddress
         }
+
+        startPing(ipAddress)
     }
+
 
     private fun startPing(ip: String) {
         val delayPing = if (dataSettings.checkPingPerSec) 1000L else dataSettings.delayPing
@@ -91,20 +96,12 @@ class MainActivity : AppCompatActivity() {
         jobPing?.cancel()
     }
 
-    fun getIpByHostName(ip: String): InetAddress {
-
-        jobPing?.onJoin.apply {
-            return Inet4Address.getByName(ip)
-        }
-
-    }
-
     private fun pingMessage(ip: String): PingTask {
         val pingTask = PingTask(ip, object : PingTask.PingListener {
 
             override fun onResult(success: Boolean, time: Long) {
                 val logMessage = if (success) {
-                    "PING from ${getIpByHostName(ip)} time=${time}ms"
+                    "PING from ${Inet4Address.getByName(ip)} time=${time}ms"
                 } else {
                     "PING $ip error"
                 }
