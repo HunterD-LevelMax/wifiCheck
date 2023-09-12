@@ -60,20 +60,26 @@ class MainActivity : AppCompatActivity() {
 
     private fun startPing(ip: String) {
         val delayPing = if (dataSettings.checkPingPerSec) 1000L else dataSettings.delayPing
+        isPingStopped = true
 
-        pingMessage(ip) // инициализация PingTask
         jobPing?.cancel() // Отменяем предыдущую работу корутины (если есть)
 
         jobPing = CoroutineScope(Dispatchers.Main).launch {
+            pingMessage(ip) // инициализация PingTask
 
-            while (!isPingStopped) {
-                pingMessage(ip).performPing()
-                delay(delayPing)
+
+            withContext(Dispatchers.Main) {
+                if (!dataSettings.checkPingPerSec) {
+                    showToast("Ping every ${dataSettings.delayPing / 60000L} minute")
+                } else {
+                    showToast("Ping every second")
+                }
             }
 
-            if (!dataSettings.checkPingPerSec) {
-                withContext(Dispatchers.Main) {
-                    showToast("Ping every ${dataSettings.delayPing / 60000L} minute")
+            withContext(Dispatchers.IO){
+                while (isPingStopped) {
+                    pingMessage(ip).performPing()
+                    delay(delayPing)
                 }
             }
         }
@@ -86,9 +92,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun getIpByHostName(ip: String): InetAddress {
-        kotlin.run {
+
+        jobPing?.onJoin.apply {
             return Inet4Address.getByName(ip)
         }
+
     }
 
     private fun pingMessage(ip: String): PingTask {
