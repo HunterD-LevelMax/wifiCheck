@@ -10,7 +10,6 @@ import com.euphoriacode.wificheck.databinding.ActivityMainBinding
 import com.euphoriacode.wificheck.ping.PingTask
 import kotlinx.coroutines.*
 import java.net.Inet4Address
-import java.net.InetAddress
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -50,6 +49,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun stopPing() {
+        binding.buttonPing.text = getString(R.string.ping)
+        isPingStopped = false
+        jobPing?.cancel()
+    }
+
     private fun setIp() {
         val ipAddress = if (binding.enterIp.text.isNotEmpty()) {
             binding.enterIp.text.toString()
@@ -70,8 +75,6 @@ class MainActivity : AppCompatActivity() {
         jobPing?.cancel() // Отменяем предыдущую работу корутины (если есть)
 
         jobPing = CoroutineScope(Dispatchers.Main).launch {
-            pingMessage(ip) // инициализация PingTask
-
 
             withContext(Dispatchers.Main) {
                 if (!dataSettings.checkPingPerSec) {
@@ -82,6 +85,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             withContext(Dispatchers.IO){
+
+
+
                 while (isPingStopped) {
                     pingMessage(ip).performPing()
                     delay(delayPing)
@@ -90,18 +96,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun stopPing() {
-        binding.buttonPing.text = getString(R.string.ping)
-        isPingStopped = false
-        jobPing?.cancel()
-    }
 
     private fun pingMessage(ip: String): PingTask {
-        val pingTask = PingTask(ip, object : PingTask.PingListener {
 
+        val ipAddress = Inet4Address.getByName(ip)
+
+        val pingTask = PingTask(ip, object : PingTask.PingListener {
             override fun onResult(success: Boolean, time: Long) {
                 val logMessage = if (success) {
-                    "PING from ${Inet4Address.getByName(ip)} time=${time}ms"
+                    "PING from $ipAddress time=${time}ms"
                 } else {
                     "PING $ip error"
                 }
@@ -125,13 +128,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        dataSettings = loadData(this)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         jobPing?.cancel() // Отменяем работу корутины при уничтожении активности
     }
 
-    override fun onResume() {
-        super.onResume()
-        dataSettings = loadData(this)
-    }
 }
