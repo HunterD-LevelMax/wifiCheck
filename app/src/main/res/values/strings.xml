@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">wifiCheck</string>
+    <string name="app_name">wifiCheck Ping</string>
     <string name="check_connection">Check connection every 1 minute</string>
     <string name="my_ip_address">My ip address:</string>
     <string name="show_logs">Show logs</string>
@@ -12,10 +12,12 @@
     <string name="sound">Sound</string>
     <string name="notice">Notice</string>
     <string name="defaultIp">ya.ru</string>
-    <string name="enter_ip_address">Enter ip address</string>
+    <string name="enter_ip_address">enter ip address</string>
     <string name="save_success">Save success</string>
     <string name="stop">Stop</string>
     <string name="start">Start</string>
     <string name="ping">Ping</string>
     <string name="error">Error</string>
+    <string name="address">address</string>
+    <string name="settings">Settings</string>
 </resources>

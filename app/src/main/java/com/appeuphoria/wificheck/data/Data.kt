@@ -1,6 +1,6 @@
-package com.euphoriacode.wificheck.data
+package com.appeuphoria.wificheck.data
 
-data class DataSettings(
+data class Data(
     var setGoogleUrl: Boolean,
     var ipAddress: String,
     var sound: Boolean,
@@ -8,5 +8,10 @@ data class DataSettings(
     var notice: Boolean,
     var delayPing: Long,
     var checkPingPerSec: Boolean
-
 )
+
+
+
+
+
+

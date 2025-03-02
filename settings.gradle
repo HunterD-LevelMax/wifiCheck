@@ -1,8 +1,8 @@
 pluginManagement {
     repositories {
-        gradlePluginPortal()
         google()
         mavenCentral()
+        gradlePluginPortal()
     }
 }
 dependencyResolutionManagement {
@@ -11,7 +11,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
     }
-
 }
-rootProject.name = "wifiCheck"
+
+rootProject.name = "wificheck"
 include ':app'

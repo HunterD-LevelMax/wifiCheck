@@ -1,19 +1,24 @@
-package com.euphoriacode.wificheck.activity
+package com.appeuphoria.wificheck.activity
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.widget.SeekBar
 import androidx.annotation.RequiresApi
-import com.euphoriacode.wificheck.*
-import com.euphoriacode.wificheck.data.DataSettings
-import com.euphoriacode.wificheck.databinding.ActivitySettingsBinding
+import com.appeuphoria.utility.getIpByHostName
+import com.appeuphoria.utility.loadData
+import com.appeuphoria.utility.saveFileData
+import com.appeuphoria.utility.showToast
+import com.appeuphoria.wificheck.data.Data
+import com.appeuphoria.wificheck.R
+import com.appeuphoria.wificheck.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
     private lateinit var seekBar: SeekBar
-    private lateinit var dataSettings: DataSettings
+    private lateinit var data: Data
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,6 +31,11 @@ class SettingsActivity : AppCompatActivity() {
         saveButton()
 
         binding.myIpAddress.text = getIpByHostName()
+
+        binding.buttonShowLogs.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+
     }
 
     override fun onResume() {
@@ -35,17 +45,17 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun setSettings() {
 
-        dataSettings = loadData(this)
+        data = loadData(this)
 
         binding.apply {
-            checkBoxGoogleIp.isChecked = dataSettings.setGoogleUrl
-            editTextIpAddress.setText(dataSettings.ipAddress)
-            switchSound.isChecked = dataSettings.sound
-            switchVibration.isChecked = dataSettings.vibration
-            switchPushNotice.isChecked = dataSettings.notice
-            seekBarDelayPing.progress = (dataSettings.delayPing / 60000L).toInt()
-            checkBoxPingPerSec.isChecked = dataSettings.checkPingPerSec
-            updateDelayPingTitle((dataSettings.delayPing / 60000L).toInt())
+            checkBoxGoogleIp.isChecked = data.setGoogleUrl
+            editTextIpAddress.setText(data.ipAddress)
+            switchSound.isChecked = data.sound
+            switchVibration.isChecked = data.vibration
+            switchPushNotice.isChecked = data.notice
+            seekBarDelayPing.progress = (data.delayPing / 60000L).toInt()
+            checkBoxPingPerSec.isChecked = data.checkPingPerSec
+            updateDelayPingTitle((data.delayPing / 60000L).toInt())
         }
     }
 
@@ -67,6 +77,7 @@ class SettingsActivity : AppCompatActivity() {
         })
     }
 
+    @SuppressLint("SetTextI18n")
     private fun updateDelayPingTitle(progress: Int) {
         binding.titleDelayPing.text = "Check connection every $progress minute"
     }
@@ -78,7 +89,7 @@ class SettingsActivity : AppCompatActivity() {
             buttonSave.setOnClickListener {
                 try {
                     binding.apply {
-                        dataSettings = DataSettings(
+                        data = Data(
                             setGoogleUrl = checkBoxGoogleIp.isChecked,
                             ipAddress = editTextIpAddress.text.toString(),
                             sound = switchSound.isChecked,
@@ -88,7 +99,7 @@ class SettingsActivity : AppCompatActivity() {
                             checkPingPerSec = checkBoxPingPerSec.isChecked
                         )
                     }
-                    saveFileData(dataSettings, path)
+                    saveFileData(data, path)
                     showToast(getString(R.string.save_success))
                 } catch (e: Exception) {
                     e.printStackTrace()

@@ -1,11 +1,11 @@
-package com.euphoriacode.wificheck.adapter
+package com.appeuphoria.wificheck.adapter
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.euphoriacode.wificheck.R
+import com.appeuphoria.wificheck.R
 
 class PingAdapter(private val logList: MutableList<String>) : RecyclerView.Adapter<PingAdapter.LogViewHolder>() {
 

@@ -1,7 +1,6 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.WifiCheck" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Primary brand color. -->
+    <style name="Base.Theme.Wificheck" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">#9C1F4A</item>
         <item name="colorPrimaryVariant">#000000</item>
         <item name="colorOnPrimary">@color/white</item>
@@ -9,11 +8,8 @@
         <item name="colorSecondary">#9C1F4A</item>
         <item name="colorSecondaryVariant">@color/teal_700</item>
         <item name="colorOnSecondary">#FFFFFF</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" >?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
-
+        <item name="android:textColor">@color/white</item>
         <item name="android:textSize">20sp</item>
-        <item name="android:textColor">@color/black</item>
     </style>
+    <style name="Theme.Wificheck" parent="Base.Theme.Wificheck" />
 </resources>

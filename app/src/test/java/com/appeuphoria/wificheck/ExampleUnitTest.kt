@@ -1,4 +1,4 @@
-package com.euphoriacode.wificheck
+package com.appeuphoria.wificheck
 
 import org.junit.Test
 
